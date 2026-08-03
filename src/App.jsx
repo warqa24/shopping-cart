@@ -15,12 +15,12 @@ function App() {
       editCart(product);
     }
     else {
-      setCart([...cart, product]);
+      setCart(prev => [...prev, product]);
     }
   }
 
   function editCart(newProduct) {
-    setCart(cart.map((product) => {
+    setCart(prev => prev.map((product) => {
       if (product.id === newProduct.id) {
         return newProduct;
       }
@@ -34,7 +34,7 @@ function App() {
     const existingProduct = cart.find((item) => item.id === product.id);
 
     if (existingProduct) {
-      setCart(cart.map((item) => {
+      setCart(prev => prev.map((item) => {
         if (item.id === product.id) {
           return {
             ...item,
@@ -47,8 +47,8 @@ function App() {
       }))
     }
     else {
-      setCart([
-        ...cart, {
+      setCart(prev => [
+        ...prev, {
           ...product,
           quantity: 1
         }
@@ -58,27 +58,28 @@ function App() {
   }
 
   function decreaseQuantity(productId) {
-    let updatedCart = cart.map((product) => {
-      if (productId === product.id) {
-        return {
-          ...product,
-          quantity: product.quantity - 1
-        };
-      }
-      else {
-        return product;
-      }
+    setCart(prev => {
+      let updatedCart = prev.map((product) => {
+        if (productId === product.id) {
+          return {
+            ...product,
+            quantity: product.quantity - 1
+          };
+        } else {
+          return product;
+        }
+      });
 
-    })
+      updatedCart = updatedCart.filter(
+        (product) => product.quantity > 0
+      );
 
-    updatedCart = updatedCart.filter((pro) => pro.quantity > 0);
-
-    setCart(updatedCart);
-
+      return updatedCart;
+    });
   }
 
   function setQuantity(productId, newQuantity) {
-    setCart(cart.map((product) => {
+    setCart(prev => prev.map((product) => {
       if (product.id === productId) {
         return {
           ...product,
@@ -92,13 +93,14 @@ function App() {
   }
 
   function removeItem(productId) {
-    setCart(cart.filter((pro) => pro.id !== productId));
+    setCart(prev => prev.filter((pro) => pro.id !== productId));
   }
 
   // console.log(cart);
 
   return (
     <div>
+
       <Nav cart={cart} />
       <Outlet context={{ addToCart, cart, setCart, increaseQuantity, decreaseQuantity, setQuantity, removeItem }} />
 
